@@ -11,13 +11,13 @@ from googleapiclient.http import MediaFileUpload
 
 
 
-def updateFile(filePath, fileName, fileId):
+def update_file(file_path, file_name, file_id):
     """
     Google Drive에 위치한 특정 파일을 업데이트 합니다.
-    update를하면 해당 파일의 revision 이 추가됩니다.
-    :param filePath: 로컬에 파일이 위치한 폴더 경로
-    :param fileName: 파일 이름(확장자 포함)
-    :param fileId: 업데이트 하려고 하는 파일의 Google fileId
+    update를 하면 해당 파일의 revision 이 추가됩니다.
+    :param file_path: 로컬에 파일이 위치한 폴더 경로
+    :param file_name: 파일 이름(확장자 포함)
+    :param file_id: 업데이트 하려고 하는 파일의 Google fileId
     :return: 업로드 완료된 파일의 google file id
     """
     SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -37,18 +37,18 @@ def updateFile(filePath, fileName, fileId):
             token.write(creds.to_json())
     try:
         service = build('drive', 'v3', credentials=creds)
-        md5Checksum = service.files().get(fileId=fileId, fields='md5Checksum').execute() # 구글 드라이브에 업로드되어있는 파일의 md5Checksum
+        md5Checksum = service.files().get(fileId=file_id, fields='md5Checksum').execute() # 구글 드라이브에 업로드되어있는 파일의 md5Checksum
         with open(name,'rb') as f:
             checksum = hashlib.md5(f.read()).hexdigest() # 업로드 하려고 하는 파일의 md5Checksum
         if checksum == md5Checksum['md5Checksum'] :
             # 구글 드라이브의 파일과 현재 업로드하려는 파일이 동일한경우 False를 리턴함
             return False
         
-        metadata = {'name':(fileName), 'mimeType':'*/*'}
-        media = MediaFileUpload(os.path.join(filePath,fileName),mimetype= '*/*',resumable=True)
-        res = service.files().update(body=metadata,fileId=fileId, media_body=media, fields='id').execute()
+        metadata = {'name':(file_name), 'mimeType':'*/*'}
+        media = MediaFileUpload(os.path.join(file_path,file_name),mimetype= '*/*',resumable=True)
+        res = service.files().update(body=metadata,fileId=file_id, media_body=media, fields='id').execute()
         if res:
-            print('"%s" 업로드 성공' %fileName)
+            print('"%s" 업로드 성공' %file_name)
             return True
     except HttpError as error:
         print(f'An error occurred: {error}')

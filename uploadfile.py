@@ -10,12 +10,12 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 
-def uploadFile(filePath, fileName, googleFolderId):
+def upload_file(file_path, file_name, google_folder_id):
     """
     Google Drive 특정 폴더에 파일을 업로드 합니다.
-    :param filePath: 로컬에 파일이 위치한 폴더 경로
-    :param fileName: 파일 이름(확장자 포함)
-    :param googleFolderId: Google folder id
+    :param file_path: 로컬에 파일이 위치한 폴더 경로
+    :param file_name: 파일 이름(확장자 포함)
+    :param google_folder_id: Google folder id
     :return: 업로드 완료된 파일의 google file id
     """
     SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -36,11 +36,11 @@ def uploadFile(filePath, fileName, googleFolderId):
     try:
         service = build('drive', 'v3', credentials=creds)
 
-        metadata = {'name':(fileName), 'mimeType':'*/*', "parents":[googleFolderId]}
-        media = MediaFileUpload(os.path.join(filePath,fileName),mimetype= '*/*',resumable=True)
+        metadata = {'name':(file_name), 'mimeType': '*/*', "parents":[google_folder_id]}
+        media = MediaFileUpload(os.path.join(file_path, file_name), mimetype='*/*', resumable=True)
         res = service.files().create(body=metadata, media_body=media, fields='id').execute()
         if res:
-            print('"%s" 업로드 성공' %fileName)
+            print('"%s" 업로드 성공' % file_name)
             return res
     except HttpError as error:
         print(f'An error occurred: {error}')
